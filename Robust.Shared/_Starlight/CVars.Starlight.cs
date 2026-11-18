@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Robust.Shared.Configuration;
 using Robust.Shared.Network;
 
@@ -132,4 +133,33 @@ public abstract partial class CVars
     /// </summary>
     public static readonly CVarDef<int> NetMaxFragmentReassemblyBytes =
         CVarDef.Create("net.max_fragment_reassembly_bytes", 512 * 1024 * 1024, CVar.ARCHIVE);
+}
+
+/// <summary>
+/// Replicated cvars that exist only in the Starlight engine.
+/// They are left out of replays because the official engine cannot load replays that mention unregistered cvars.
+/// </summary>
+internal static class StarlightReplicatedCVars
+{
+    private static readonly HashSet<string> Names =
+    [
+        CVars.PhysicsClippingRecoveryStuckDelay.Name,
+        CVars.PhysicsClippingRecoveryMaxDistance.Name,
+        CVars.PhysicsClippingRecoveryFullScanDistance.Name,
+        CVars.PhysicsClippingRecoveryMaxOuterRingSamples.Name,
+        CVars.PhysicsClippingRecoveryMaxCollisionQueries.Name,
+    ];
+
+    public static bool IsForkOnly(string name) => Names.Contains(name);
+
+    /// <summary>
+    /// Returns the list without fork-only cvars. The same list is returned when there is nothing to remove.
+    /// </summary>
+    public static List<(string name, object value)> WithoutForkOnly(List<(string name, object value)> vars)
+    {
+        if (!vars.Exists(x => Names.Contains(x.name)))
+            return vars;
+
+        return vars.FindAll(x => !Names.Contains(x.name));
+    }
 }

@@ -1,3 +1,4 @@
+using Robust.Shared;
 using Robust.Shared.Configuration;
 using Robust.Shared.IoC;
 using Robust.Shared.Timing;
@@ -90,9 +91,15 @@ internal sealed partial class ClientNetConfigurationManager : NetConfigurationMa
         else
             base.HandleNetVarMessage(message);
 
+        // Starlight-start
+        var recorded = StarlightReplicatedCVars.WithoutForkOnly(message.NetworkedVars);
+        if (recorded.Count == 0)
+            return;
+        // Starlight-end
+
         _replay.RecordClientMessage(new ReplayMessage.CvarChangeMsg()
         {
-            ReplicatedCvars = message.NetworkedVars,
+            ReplicatedCvars = recorded, // Starlight-edit
             TimeBase = _timing.TimeBase
         });
     }
@@ -112,7 +119,7 @@ internal sealed partial class ClientNetConfigurationManager : NetConfigurationMa
 
         foreach (var (name, value) in networkedVars)
         {
-            if (!_configVars.TryGetValue(name, out var cVar))
+            if (!_configVars.TryGetValue(name, out var cVar) || !cVar.Registered) // Starlight-edit: config files and overrides can leave unregistered entries for cvars this build lacks.
             {
                 Sawmill.Warning($"Server sent an unknown replicated CVar '{name}.'");
                 continue;

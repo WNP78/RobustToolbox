@@ -1,3 +1,4 @@
+using Robust.Shared;
 using Robust.Shared.Configuration;
 using Robust.Shared.Network;
 using Robust.Shared.Network.Messages;
@@ -84,6 +85,11 @@ internal sealed partial class ServerNetConfigurationManager : NetConfigurationMa
         msg.NetworkedVars = new List<(string name, object value)>{ (name, value) };
 
         NetManager.ServerSendToAll(msg);
+
+        // Starlight-start
+        if (StarlightReplicatedCVars.IsForkOnly(name))
+            return;
+        // Starlight-end
 
         _replayRecording.RecordServerMessage(new ReplayMessage.CvarChangeMsg()
         {

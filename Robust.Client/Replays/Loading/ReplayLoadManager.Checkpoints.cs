@@ -83,6 +83,11 @@ public sealed partial class ReplayLoadManager
         Dictionary<string, object> cvars = [];
         foreach (var cvar in initialCvars)
         {
+            // Starlight-start
+            if (!_confMan.IsCVarRegistered(cvar))
+                continue;
+            // Starlight-end
+
             cvars[cvar] = _confMan.GetCVar<object>(cvar);
         }
 
@@ -329,6 +334,11 @@ public sealed partial class ReplayLoadManager
                 case CvarChangeMsg cvar:
                     foreach (var (name, value) in cvar.ReplicatedCvars)
                     {
+                        // Starlight-start
+                        if (!_confMan.IsCVarRegistered(name))
+                            continue;
+                        // Starlight-end
+
                         cvars[name] = value;
                     }
 

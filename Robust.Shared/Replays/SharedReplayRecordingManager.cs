@@ -368,7 +368,9 @@ internal abstract partial class SharedReplayRecordingManager : IReplayRecordingM
         WriteBytes(recState, ReplayZipFolder / FileStrings, stringData, CompressionLevel.NoCompression);
 
         // Save replicated cvars.
-        var cvars = NetConf.GetReplicatedVars(true).Select(x => x.name);
+        var cvars = NetConf.GetReplicatedVars(true)
+            .Where(x => !StarlightReplicatedCVars.IsForkOnly(x.name)) // Starlight-edit
+            .Select(x => x.name);
         WriteToml(recState, cvars, ReplayZipFolder / FileCvars);
     }
 
