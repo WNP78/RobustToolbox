@@ -17,7 +17,7 @@ namespace Robust.UnitTesting.Shared.Toolshed;
 /// Collection of miscellaneous toolshed command tests.
 /// Several of these were just added ad hoc as bugs arose.
 /// </summary>
-internal sealed class ToolshedTests : ToolshedTest
+internal sealed partial class ToolshedTests : ToolshedTest // Starlight edit
 {
     // TODO Robust.UnitTesting
     // split these into separate [TestCase]s when we have pooling.
